@@ -1,52 +1,30 @@
-'use client'
+import { cookies } from 'next/headers';
 
-import { useState } from 'react';
+export async function GET() {
+    const cookieStore = cookies();
+    const accessToken = cookieStore.get('ebay_session')?.value;
 
-export default function Home() {
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null); // Change this line
+    if (!accessToken) {
+        return new Response(JSON.stringify({ error: 'Access token is missing' }), { status: 401 });
+    }
 
-    const handleConnect = () => {
-        window.location.href = 'https://ebay-connect.vercel.app/api/callback';
-    };
+    const ordersEndpoint = 'https://api.ebay.com/sell/fulfillment/v1/order';
 
-    const fetchOrders = async () => {
-        setLoading(true);
-        setError(null);  // Reset error state before trying to fetch orders
-        try {
-            const response = await fetch('/api/orders');
-            const data = await response.json();
-            if (data.orders) {
-                setOrders(data.orders);
-            } else {
-                setError('No orders found.');  // Now this works
-            }
-        } catch (error) {
-            setError('Error fetching orders.');  // This works as well
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+        const response = await fetch(ordersEndpoint, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
 
-    return (
-        <div>
-            <h1>eBay Orders</h1>
-            <button onClick={handleConnect}>Connect eBay</button>
+        const data = await response.json();
+        console.log('Fetched Orders:', data);
 
-            {/* After the user is connected, display orders */}
-            {loading && <p>Loading orders...</p>}
-            {error && <p>{error}</p>} {/* Error handling here */}
-
-            {orders.length > 0 && (
-                <ul>
-                    {orders.map((order) => (
-                        <li key={order?.orderId}>
-                            Order ID: {order?.orderId} - Total: {order?.pricingSummary?.total?.value}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
-    );
+        return new Response(JSON.stringify({ orders: data.orders || [] }));
+    } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        return new Response(JSON.stringify({ error: 'Failed to fetch orders' }), { status: 500 });
+    }
 }
