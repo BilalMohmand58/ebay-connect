@@ -1,14 +1,26 @@
 'use client'
 import { useState } from 'react';
 
+interface Order {
+  id: string;
+  title: string;
+  status: string;
+}
+
 export default function Home() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleConnectEbay = () => {
     const clientId = process.env.NEXT_PUBLIC_EBAY_CLIENT_ID;
     const redirectUri = process.env.NEXT_PUBLIC_EBAY_REDIRECT_URI;
     const scope = 'https://api.ebay.com/oauth/api_scope';
+
+    if (!clientId || !redirectUri) {
+      console.error('Missing eBay client ID or redirect URI');
+      alert('eBay client ID or redirect URI is not set.');
+      return;
+    }
 
     const authUrl = `https://auth.ebay.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
     window.location.href = authUrl;
