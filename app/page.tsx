@@ -1,8 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 
+interface Order {
+    orderId: string;
+    pricingSummary: {
+        total: {
+            value: string;
+        };
+    };
+}
+
 export default function Home() {
-    const [orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,10 +37,10 @@ export default function Home() {
                 <p>Loading orders...</p>
             ) : (
                 <ul>
-                    {orders.length > 0 ? (
+                    {orders?.length > 0 ? (
                         orders.map((order) => (
-                            <li key={order.orderId}>
-                                Order ID: {order.orderId} - Total: {order.pricingSummary.total.value}
+                            <li key={order?.orderId}>
+                                Order ID: {order?.orderId} - Total: {order?.pricingSummary?.total?.value}
                             </li>
                         ))
                     ) : (
