@@ -1,5 +1,5 @@
-'use client'
-import { useState } from 'react';
+'use client';
+import { useState, useEffect } from 'react';
 
 interface Order {
   id: string;
@@ -35,10 +35,15 @@ export default function Home() {
       setOrders(data.orders || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      alert('Failed to load orders. Try reconnecting.');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
     <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -51,7 +56,9 @@ export default function Home() {
         ) : (
           <ul>
             {orders.map((order) => (
-              <li key={order.id}>{order.title} - {order.status}</li>
+              <li key={order.id}>
+                {order.title} - {order.status}
+              </li>
             ))}
           </ul>
         )}

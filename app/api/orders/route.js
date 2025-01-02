@@ -1,28 +1,31 @@
-export async function GET(req, res) {
-  const token = req.query.token;
+export async function GET() {
+  const accessToken = process.env.EBAY_ACCESS_TOKEN;
 
-  if (!token) {
-      return res.status(400).json({ error: 'Access token is missing' });
+  if (!accessToken) {
+    return new Response(JSON.stringify({ error: 'Access token is missing' }), { status: 401 });
   }
 
+  const ordersEndpoint = 'https://api.ebay.com/buy/order/v1/order';
+
   try {
-      const response = await fetch('https://api.ebay.com/sell/order/v1/order', {
-          method: 'GET',
-          headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-          },
-      });
+    const response = await fetch(ordersEndpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-          res.status(200).json(data);
-      } else {
-          res.status(500).json({ error: 'Failed to fetch orders', details: data });
-      }
+    if (response.ok) {
+      return new Response(JSON.stringify({ orders: data.orders || [] }));
+    } else {
+      console.error('Error fetching orders:', data);
+      return new Response(JSON.stringify({ error: 'Failed to fetch orders' }), { status: 500 });
+    }
   } catch (error) {
-      console.error('Error fetching orders:', error);
-      res.status(500).json({ error: 'Internal server error' });
+    console.error('Order Fetch Error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch orders' }), { status: 500 });
   }
 }
