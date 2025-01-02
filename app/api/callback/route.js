@@ -1,11 +1,14 @@
 import fetch from 'node-fetch'; // Ensure you have installed node-fetch
 import { Buffer } from 'buffer'; // Required for base64 encoding
 
-export default async function handler(req, res) {
-  const { ebaytkn, tknexp, username } = req.query;
-  
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const ebaytkn = searchParams.get('ebaytkn');
+  const tknexp = searchParams.get('tknexp');
+  const username = searchParams.get('username');
+
   if (!ebaytkn) {
-    return res.status(400).json({ error: 'Missing eBay token' });
+    return new Response(JSON.stringify({ error: 'Missing eBay token' }), { status: 400 });
   }
 
   // eBay OAuth token exchange endpoint
@@ -44,9 +47,9 @@ export default async function handler(req, res) {
     // Example: saveTokenToDatabase(data.access_token);
 
     // Redirect the user to a success page
-    return res.redirect('/success');  // Change '/success' to the appropriate success URL in your app
+    return Response.redirect('/success', 302);  // Change '/success' to the appropriate success URL in your app
   } catch (error) {
     console.error('Error handling eBay OAuth callback:', error);
-    return res.status(500).json({ error: 'Error handling OAuth callback' });
+    return new Response(JSON.stringify({ error: 'Error handling OAuth callback' }), { status: 500 });
   }
 }
