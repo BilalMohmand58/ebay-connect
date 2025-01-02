@@ -67,7 +67,7 @@ export async function GET(req) {
       process.env.EBAY_ACCESS_TOKEN = tokenData.access_token;  // Store temporarily (use session/store for production)
       
       const redirectUri = process.env.NEXT_PUBLIC_EBAY_REDIRECT_URI;
-      return Response.redirect(`${redirectUri}/orders`, 302);
+      return Response.redirect(`${redirectUri}`, 302);
     }
   
     return new Response(JSON.stringify({ error: 'Failed to obtain access token' }), { status: 400 });
