@@ -1,51 +1,49 @@
 'use client';
-import { useEffect, useState } from 'react';
-
-interface Order {
-    orderId: string;
-    pricingSummary: {
-        total: {
-            value: string;
-        };
-    };
-}
+import { useState } from 'react';
 
 export default function Home() {
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const response = await fetch('/api/orders');
-                const data = await response.json();
+    const handleConnect = () => {
+        window.location.href = 'https://ebay-connect.vercel.app/api/callback';
+    };
+
+    const fetchOrders = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('/api/orders');
+            const data = await response.json();
+            if (data.orders) {
                 setOrders(data.orders);
-            } catch (error) {
-                console.error('Error fetching orders:', error);
-            } finally {
-                setLoading(false);
+            } else {
+                setError('No orders found.');
             }
-        };
-
-        fetchOrders();
-    }, []);
+        } catch (error) {
+            setError('Error fetching orders.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div>
-            <h1>Your Orders</h1>
-            {loading ? (
-                <p>Loading orders...</p>
-            ) : (
+            <h1>eBay Orders</h1>
+            <button onClick={handleConnect}>Connect eBay</button>
+
+            {/* After the user is connected, display orders */}
+            {loading && <p>Loading orders...</p>}
+            {error && <p>{error}</p>}
+
+            {orders.length > 0 && (
                 <ul>
-                    {orders?.length > 0 ? (
-                        orders.map((order) => (
-                            <li key={order?.orderId}>
-                                Order ID: {order?.orderId} - Total: {order?.pricingSummary?.total?.value}
-                            </li>
-                        ))
-                    ) : (
-                        <p>No orders found.</p>
-                    )}
+                    {orders.map((order) => (
+                        <li key={order.orderId}>
+                            Order ID: {order.orderId} - Total: {order.pricingSummary.total.value}
+                        </li>
+                    ))}
                 </ul>
             )}
         </div>
