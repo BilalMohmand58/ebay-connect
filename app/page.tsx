@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 
 interface Order {
-  id: string;
-  title: string;
-  status: string;
+  orderId: string;
+  orderFulfillmentStatus: string;
+  orderPaymentStatus: string;
 }
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
   const handleConnectEbay = () => {
     const clientId = process.env.NEXT_PUBLIC_EBAY_CLIENT_ID;
     const redirectUri = process.env.NEXT_PUBLIC_EBAY_REDIRECT_URI;
-    const scope = 'https://api.ebay.com/oauth/api_scope';
+    const scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly';
 
     if (!clientId || !redirectUri) {
       console.error('Missing eBay client ID or redirect URI');
@@ -56,8 +56,8 @@ export default function Home() {
         ) : (
           <ul>
             {orders.map((order) => (
-              <li key={order.id}>
-                {order.title} - {order.status}
+              <li key={order.orderId}>
+                Order ID: {order.orderId} - Status: {order.orderFulfillmentStatus}
               </li>
             ))}
           </ul>

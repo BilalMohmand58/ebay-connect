@@ -64,8 +64,8 @@ export async function GET(req) {
     const tokenData = await tokenResponse.json();
   
     if (tokenData.access_token) {
-      process.env.EBAY_ACCESS_TOKEN = tokenData.access_token;  // Store temporarily for demo purposes (improve for production)
-  
+      process.env.EBAY_ACCESS_TOKEN = tokenData.access_token;  // Store temporarily (use session/store for production)
+      
       const redirectUri = process.env.NEXT_PUBLIC_EBAY_REDIRECT_URI;
       return Response.redirect(`${redirectUri}/orders`, 302);
     }
@@ -91,16 +91,19 @@ export async function GET(req) {
       const response = await fetch(tokenEndpoint, {
         method: 'POST',
         headers: {
-          Authorization: `Basic ${basicAuth}`,
+          'Authorization': `Basic ${basicAuth}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body,
       });
   
-      return response;
+      const data = await response.json();
+      console.log('Token Exchange Response:', data);
+      return new Response(JSON.stringify(data));
     } catch (error) {
       console.error('Token Exchange Error:', error);
       return new Response(JSON.stringify({ error: 'Token exchange failed' }), { status: 500 });
     }
   }
+  
   
