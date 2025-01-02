@@ -50,6 +50,6 @@ export async function GET(req) {
     return Response.redirect('/success', 302);  // Change '/success' to the appropriate success URL in your app
   } catch (error) {
     console.error('Error handling eBay OAuth callback:', error);
-    return new Response(JSON.stringify({ error: 'Error handling OAuth callback' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Error handling OAuth callbackk' }), { status: 500 });
   }
 }
