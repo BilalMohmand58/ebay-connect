@@ -13,9 +13,9 @@ export async function GET(req) {
   }
   
   async function exchangeAuthCode(authCode) {
-    const clientId = process.env.EBAY_CLIENT_ID;
+    const clientId = process.env.NEXT_PUBLIC_EBAY_CLIENT_ID;
     const clientSecret = process.env.EBAY_CLIENT_SECRET;
-    const redirectUri = process.env.EBAY_REDIRECT_URI;
+    const redirectUri = process.env.NEXT_PUBLIC_EBAY_REDIRECT_URI;
     
     const tokenEndpoint = 'https://api.ebay.com/identity/v1/oauth2/token';
     const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
